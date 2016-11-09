@@ -1,4 +1,4 @@
-/* Group: William Wolfard, Clay Brandt, Hansaj Patel, Brad uuh 
+/* Group: William Wolfard, Clay Brant, Hansaj Patel, Jay Bishop 
 Course: CSCE 3600.003
 Due Date: Monday, November 14
 Description:  Makes a shell in C 
