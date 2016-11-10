@@ -97,6 +97,38 @@ int main(int argc,char* argv[]){
 	}
 	else if (argc==2){
 		// Batch mode
+		int i = 0;
+		int j = 0;
+
+		char input[128];
+		char *string[256];
+		char delimit[]=";\n\t\r\v\f";
+		char * buffer[256];
+
+		FILE *batch;
+		batch = fopen(argv[1], "r");
+		if (batch == NULL) 
+		{
+			perror("Error opening file");
+			return -1;
+		}
+
+		if (fgets(input, sizeof(input), batch) != NULL) 
+		{
+
+			string[i]=strtok(input,delimit);
+			while (string[i] != NULL) 
+			{
+				i++;
+				string[i]=strtok(NULL,delimit);
+			}
+
+			for (j = 0; j < i; j++) 
+			{
+				printf("String [%d] = %s\n", j, string[j]);
+			}
+		}
+		fclose(batch);
 		return 0;
 	}	
 	else{	// argc > 3
