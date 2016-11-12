@@ -109,7 +109,6 @@ int main(int argc,char* argv[]){
 			}
 		}
 		fclose(batch);
-		return 0;tch);
 		return 0;
 	}	
 	else{	// argc > 3
