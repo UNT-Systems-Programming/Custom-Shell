@@ -80,9 +80,9 @@ int main(int argc,char* argv[]){
 		int j = 0;
 
 		char input[128];
-		char *string[256];
-		char delimit[]=";\n\t\r\v\f";
-		char * buffer[256];
+		const char delimit[]=";\n\t\r\v\f";
+
+		char *line;
 
 		FILE *batch;
 		batch = fopen(argv[1], "r");
@@ -92,22 +92,24 @@ int main(int argc,char* argv[]){
 			return -1;
 		}
 
-		if (fgets(input, sizeof(input), batch) != NULL) 
+		while (fgets(input, 128, (FILE*)batch) != '\0') 
 		{
 
-			string[i]=strtok(input,delimit);
-			while (string[i] != NULL) 
+			line = strtok(input, delimit);
+			while (line != NULL) 
 			{
-				i++;
-				string[i]=strtok(NULL,delimit);
-			}
+				/* This is the moment where we need the 
+					child process for the system calls.
+					I have confirmed that this current code
+					will call all commands from a batch file with
+					delimiters in place */
+				system(line); // This should be replaced with the call for a child process
 
-			for (j = 0; j < i; j++) 
-			{
-				printf("String [%d] = %s\n", j, string[j]);
+				line = strtok(NULL, delimit);
 			}
 		}
 		fclose(batch);
+		return 0;tch);
 		return 0;
 	}	
 	else{	// argc > 3
