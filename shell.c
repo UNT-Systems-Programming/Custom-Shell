@@ -20,9 +20,7 @@ int launch(char **args)
   pid = fork();
   if (pid == 0) {
     // Child process
-    
-    if (execvp(args[0], args) == -1) {
-      perror("lsh");
+    system(args);
     }
     exit(EXIT_FAILURE);
   } else if (pid < 0) {
@@ -95,17 +93,17 @@ int main(int argc,char* argv[]){
 		while (fgets(input, 128, (FILE*)batch) != '\0') 
 		{
 
+			i = 0;
 			line = strtok(input, delimit);
 			while (line != NULL) 
 			{
-				/* This is the moment where we need the 
-					child process for the system calls.
-					I have confirmed that this current code
-					will call all commands from a batch file with
-					delimiters in place */
-				system(line); // This should be replaced with the call for a child process
-
+				string[i] = line;
+				i++;
 				line = strtok(NULL, delimit);
+			}
+			for (j = 0; j < i; j++) 
+			{
+				launch(&string[j]);
 			}
 		}
 		fclose(batch);
