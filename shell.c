@@ -21,8 +21,6 @@ int launch(char **args)
   if (pid == 0) {
     // Child process
     system(args);
-    }
-    exit(EXIT_FAILURE);
   } else if (pid < 0) {
     // Error forking
     perror("lsh");
