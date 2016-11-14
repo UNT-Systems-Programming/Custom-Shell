@@ -8,55 +8,45 @@ Notes:
 
 #include <stdio.h>	//printf
 #include <stdlib.h>	//system
-#include <string.h> //strcat
+#include <string.h> 	//strcat
 #include <unistd.h>
 #include<sys/types.h>
-#include<sys/wait.h>
+#include<sys/wait.h>	// wait(NULL)
 #include<sys/mman.h>
-#include<string.h>
 
 #define FALSE 0
 #define TRUE  1
-
 enum{READ, WRITE};
 
-int launch(char **args)
+void launch(char **args)
 {
+  //int status;
   pid_t pid, wpid;
-  int status;
-  int READ = 0; 					
-  int WRITE = 1;
-  int fileDesc[2];
-  
   pid = fork();
   if (pid == 0) {
     // Child process
     system(*args);
+	return;
   } else if (pid < 0) {
     // Error forking
     perror("lsh");
   } else {
+	wait(NULL);
+	exit(0);
     // Parent process
-    do {
-      wpid = waitpid(pid, &status, WUNTRACED);
-    } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+    //wpid = waitpid(pid, &status, WUNTRACED);
   }
-
-  return 1;
 }
 
 int main(int argc,char* argv[]){
 	if(argc == 1){
 		// Interactive mode
-		int i,j,status;		
+		int i,j;		
 		char input[128];
 		char *string[256];
 		char delimit[]=";\n\t\r\v\f";
-		char * buffer[128];
-		char *terminate;
-		
-		
-		while(1)
+		int exit_flag = FALSE;
+		while(!exit_flag)
 		{							// Interactive Mode loop
 			i=0;					// Iterator for agrument access
 			j=0;
@@ -73,15 +63,20 @@ int main(int argc,char* argv[]){
 				}
 				for(j=0;j<i;j++)
 				{
-					if(string[i] == 'quit')
-						return 0;
-					printf("String [%d] = %s\n",j,string[j]);
-					launch(&string[j]);
+					if((strstr(string[j],"quit")) != NULL || (strstr(string[j],"exit")) != NULL){
+						exit_flag = TRUE;
+					}
+					else{
+						printf("String [%d] = %s\n",j,string[j]);
+						launch(&string[j]);
+					}
 				}
-				
+				if(exit_flag){
+					printf("\nGoodbye\n");
+					exit(0);
+				}
 			}			
 		}
-		printf("\n");
 		return 0;
 	}
 	else if (argc==2){
@@ -115,7 +110,7 @@ int main(int argc,char* argv[]){
 			}
 			for (j = 0; j < i; j++) 
 			{
-				lauch(&string[j]);
+				launch(&string[j]);
 			}
 		}
 		fclose(batch);
