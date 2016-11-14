@@ -21,7 +21,7 @@ enum{READ, WRITE};
 void launch(char **args)
 {
   //int status;
-  pid_t pid, wpid;
+  pid_t pid;
   pid = fork();
   if (pid == 0) {
     // Child process
