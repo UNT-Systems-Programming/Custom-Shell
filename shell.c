@@ -2,7 +2,7 @@
 Course: CSCE 3600.003
 Due Date: Monday, November 14
 Description:  Makes a shell in C 
-Notes: ,1234
+Notes: 
 */
 
 
@@ -98,10 +98,11 @@ int main(int argc,char* argv[]){
 			perror("Error opening file");
 			return -1;
 		}
-
+		printf("--> file: %s\n", argv[1]);
 		while (fgets(input, 128, (FILE*)batch) != '\0' && !exit_flag) 
 		{
 			i = 0;
+			printf("batch line> %s\n\n",input);
 			line = strtok(input, delimit);
 			while (line != NULL) 
 			{
@@ -120,6 +121,7 @@ int main(int argc,char* argv[]){
 			}
 		}
 		fclose(batch);
+		printf("\n");
 		return 0;
 	}	
 	else{	// argc > 3
