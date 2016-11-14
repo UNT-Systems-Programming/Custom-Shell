@@ -4,10 +4,21 @@ Due Date: Monday, November 14
 Description:  Makes a shell in C 
 Notes: 
 */
+
+
 #include <stdio.h>	//printf
 #include <stdlib.h>	//system
 #include <string.h> //strcat
 #include <unistd.h>
+#include<sys/types.h>
+#include<sys/wait.h>
+#include<sys/mman.h>
+#include<string.h>
+
+#define FALSE 0
+#define TRUE  1
+
+enum{READ, WRITE};
 
 int launch(char **args)
 {
@@ -20,7 +31,7 @@ int launch(char **args)
   pid = fork();
   if (pid == 0) {
     // Child process
-    system(args);
+    system(*args);
   } else if (pid < 0) {
     // Error forking
     perror("lsh");
@@ -42,15 +53,16 @@ int main(int argc,char* argv[]){
 		char *string[256];
 		char delimit[]=";\n\t\r\v\f";
 		char * buffer[128];
+		char *terminate;
 		
 		
 		while(1)
-		{
-
-									// Interactive Mode loop
+		{							// Interactive Mode loop
 			i=0;					// Iterator for agrument access
 			j=0;
+			
 			printf("prompt> ");
+			
 			if(fgets(input, sizeof(input),stdin))
 			{
 				string[i]=strtok(input,delimit);			// Tokenizes first element puts in string
@@ -59,24 +71,27 @@ int main(int argc,char* argv[]){
 					i++;
 					string[i]=strtok(NULL,delimit);			// Puts next token in string
 				}
-				
 				for(j=0;j<i;j++)
 				{
+					if(string[i] == 'quit')
+						return 0;
 					printf("String [%d] = %s\n",j,string[j]);
 					launch(&string[j]);
 				}
+				
 			}			
 		}
 		printf("\n");
 		return 0;
 	}
 	else if (argc==2){
-		// Batch mode
+		printf("****Batch Mode****\n");
 		int i = 0;
 		int j = 0;
 
 		char input[128];
 		const char delimit[]=";\n\t\r\v\f";
+		char *string[256];
 
 		char *line;
 
@@ -90,7 +105,6 @@ int main(int argc,char* argv[]){
 
 		while (fgets(input, 128, (FILE*)batch) != '\0') 
 		{
-
 			i = 0;
 			line = strtok(input, delimit);
 			while (line != NULL) 
@@ -101,7 +115,7 @@ int main(int argc,char* argv[]){
 			}
 			for (j = 0; j < i; j++) 
 			{
-				launch(&string[j]);
+				lauch(&string[j]);
 			}
 		}
 		fclose(batch);
