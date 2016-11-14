@@ -1,0 +1,5 @@
+ls -l
+who
+ls;du;cat file1
+ps; cat file2; grep Texas file2
+quit
