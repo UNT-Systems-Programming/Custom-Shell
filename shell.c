@@ -83,6 +83,7 @@ int main(int argc,char* argv[]){
 		printf("****Batch Mode****\n");
 		int i = 0;
 		int j = 0;
+		int exit_flag = FALSE;
 
 		char input[128];
 		const char delimit[]=";\n\t\r\v\f";
@@ -98,7 +99,7 @@ int main(int argc,char* argv[]){
 			return -1;
 		}
 
-		while (fgets(input, 128, (FILE*)batch) != '\0') 
+		while (fgets(input, 128, (FILE*)batch) != '\0' && !exit_flag) 
 		{
 			i = 0;
 			line = strtok(input, delimit);
@@ -110,7 +111,12 @@ int main(int argc,char* argv[]){
 			}
 			for (j = 0; j < i; j++) 
 			{
-				launch(&string[j]);
+				if((strstr(string[j],"quit")) != NULL || (strstr(string[j],"exit")) != NULL){
+						exit_flag = TRUE;
+				}
+				else {
+					launch(&string[j]);
+				}
 			}
 		}
 		fclose(batch);
