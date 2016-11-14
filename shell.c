@@ -43,7 +43,7 @@ int main(int argc,char* argv[]){
 		// Interactive mode
 		int i,j;		
 		char input[128];
-		char history_buff[128];
+		//char history_buff[128];
 		char *string[256];
 		char prompt[128] = "prompt> ";
 		char *newDir;
@@ -74,7 +74,7 @@ int main(int argc,char* argv[]){
 				}
 				for(j=0;j<i;j++)
 				{
-					fputs(string[j], history); 
+					//fputs(string[j], history); 
 					if((strstr(string[j],"quit")) != NULL || (strstr(string[j],"exit")) != NULL){
 						exit_flag = TRUE;
 					}
@@ -89,13 +89,13 @@ int main(int argc,char* argv[]){
 						strcpy(prompt,newPrompt);		// Copy over
 						strcat(prompt," ");				// Add space
 					}
-					else if((strstr(string[j],"history")) != NULL){
+				/*	else if((strstr(string[j],"history")) != NULL){
 						printf("Were in history!\n");
 						while(fgets(history_buff,128,(FILE*)history) != '\0'){	// Doesnt work right now
 							printf("History: %s\n",history_buff);
 						}
 					}
-					else{
+				*/	else{
 						//printf("String [%d] = %s\n",j,string[j]);
 						launch(&string[j]);
 					}
