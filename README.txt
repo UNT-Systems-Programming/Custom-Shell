@@ -20,3 +20,16 @@ Complete Specification:
 Known Bugs or Problems:
 	If the user types in "prompt" after "prompt >", the program will terminate.
 	The user must type "prompt this is my new prompt$" after "prompt >" in order to change the prompt
+	
+
+################################################################
+#
+# shell.c is the name of your source code; you may change this.
+# However, you must keep the name of the executable as "shell".
+#
+# Type "make" to compile your code
+# Type "make run" to run the interactive mode
+# Type "./shell [filename]" to run the batch mode
+# Type "make clean" to remove the executable (and object files)
+#
+################################################################
