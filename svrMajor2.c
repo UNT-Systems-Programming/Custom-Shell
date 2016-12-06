@@ -53,9 +53,17 @@ int main(int argc, char *argv[]) {
 	if ((c1 = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen)) < 0) {
 		error("Error: client 1 accept");
 	}
+	else {
+		printf("Client Connection Accepted\n");
+		printf("Client Handler Assigned\n");
+	}
 	
 	if ((c2 = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen)) < 0) {
 		error("Error: client 2 accept");
+	}
+	else {
+		printf("Client Connection Accepted\n");
+		printf("Client Handler Assigned\n");
 	}
 	
 	maxfd = (c1 > c2 ? c1 : c2) + 1;
@@ -72,34 +80,35 @@ int main(int argc, char *argv[]) {
 		
 		if (FD_ISSET(c1, &fds) && t1 < 20) {
 			nread = recv(c1, buff, sizeof(buff), 0);
-			if (nread < 1) {
-				close(c1);
-				close(c2);
-				exit(0);
-			}
+			//if (nread < 1) {
+				//close(c1);
+				//close(c2);
+				//exit(0);
+			//}
 			
 			trans = atoi(buff);
 			if (trans == 0) {
 				printf("Client Disconnected\n");
-				t1 = 1;
+				trans = 1;
 			}
 			else {
 				total += trans;
 				printf("%d\n", total);
+				
 			}
 		}
 		if (FD_ISSET(c2, &fds) && t2 < 20) {
 			nread = recv(c2, buff, sizeof(buff), 0);
-			if (nread < 1) {
-				close(c1);
-				close(c2);
-				exit(0);
-			}
+			//if (nread < 1) {
+				//close(c1);
+				//close(c2);
+				//exit(0);
+			//}
 			
 			trans = atoi(buff);
 			if (trans == 0) {
 				printf("Client Disconnected\n");
-				t2 = 1;
+				trans = 1;
 			}
 			else {
 				total += trans;
@@ -107,9 +116,6 @@ int main(int argc, char *argv[]) {
 			}
 		}
 		
-		if (t1 == 1 && t2 == 1) {
-			break;
-		}
 	}
 	close(sockfd);
 	return 0;
