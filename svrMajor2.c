@@ -87,8 +87,11 @@ void error(const char *msg) {
 }
 
 			void *connection_handler(void *socket_desc){
-
+			
+			int sock = *(int*)socket_desc;
 			int uc = clientCount; // unique client
+			char message[200], client_message[200];
+			bzero(client_message,200);
 			//clilen = sizeof(cli_addr);
 			FD_ZERO(&fds);
 			FD_SET(uc, &fds);
@@ -96,11 +99,15 @@ void error(const char *msg) {
 				maxfd = uc;
 			}
 			//FD_SET(c2, &fds);
-			strcpy(buff, "Server connect successful");
-			
 			status = select(maxfd, &fds, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
 			
-		
+
+			if(recv(sock , client_message , 2000 , 0)>0){
+			printf("%s", client_message);
+			perror("Got Message From Client");
+			}else{
+				perror("Got Less than one from the client");
+			}
 			if (FD_ISSET(uc, &fds)) {
 				nread = recv(uc, buff, sizeof(buff), 0);
 				if (nread < 1) {
@@ -111,12 +118,13 @@ void error(const char *msg) {
 					if (trans == 0) {
 						printf("Client Disconnected\n");
 						trans = 1;
-						done--;
 					}
 					else {
 						total += trans;
 						printf("%d\n", total);
-						
+						bzero(message,200);
+						sprintf(message,"\nCLIENT[%d%s%d%s",uc,"] Updated Total: ",total,"\n");
+						write(sock , message, strlen(message));	
 					}
 				}
 			}
