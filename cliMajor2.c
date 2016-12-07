@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 		
 		if( FD_ISSET(s, &fds)) {
 				cpu_usage = getCpuUsage();
-				if(cpu_usage > atoi(argv[i]){
+				if(cpu_usage > atoi(argv[/* last agrument */])){
 					// Disconnect 
 				}   
 				nread = recv(s, buff, sizeof(buff), 0);
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
 
 		if( FD_ISSET(0, &fds)) {
 			cpu_usage = getCpuUsage();
-			if(cpu_usage > atoi(argv[i]){
+			if(cpu_usage > atoi(argv[/* last argument */])){
 				// Disconnect 
 			}  
 			nread = read(0, buff, sizeof(buff));
