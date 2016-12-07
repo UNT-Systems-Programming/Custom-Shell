@@ -1,23 +1,3 @@
-
-	if (listen(sockfd, 10) < 0) {
-		error("Error on listen");
-	}
-	while (1) {
-		if ((c1 = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen)) < 0) {
-			error("Error: client 1 accept");
-		
-		else {
-			printf("%d", c1);
-			printf("Client Connection Accepted\n");
-			printf("Client Handler Assigned\n");
-			done++;
-		}
-		
-		if ((c2 = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen)) < 0) {
-			error("Error: client 2 accept");
-		}
-		else {
-			printf("%d", c2);
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,7 +12,7 @@ void error(const char *msg);
 
 int main(int argc, char *argv[]) {
 	int sockfd, cli_size, portno, status;
-	int c1, c2, maxfd, nread, trans;
+	int client_sock, c, c1, c2, maxfd, nread, trans;
 	int t1 = 0;
 	int t2 = 0;
 	int total = 0;
@@ -70,12 +50,13 @@ int main(int argc, char *argv[]) {
 	if (listen(sockfd, 10) < 0) {
 		error("Error on listen");
 	}
-	while ((client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c))) {
+	
+	c = sizeof(struct sockaddr_in);
+	while ((client_sock = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t*)&c))) {
 		if (client_sock < 0) {
 			error("Error: Unable to accept client");
 		}
 		else {
-			printf("%d", c1);
 			printf("Client Connection Accepted\n");
 			printf("Client Handler Assigned\n");
 			done++;
@@ -85,7 +66,6 @@ int main(int argc, char *argv[]) {
 			error("Error: client 2 accept");
 		}
 		else {
-			printf("%d", c2);
 			printf("Client Connection Accepted\n");
 			printf("Client Handler Assigned\n");
 			done++;
@@ -158,3 +138,4 @@ void error(const char *msg) {
 	perror(msg);
 	exit(1);
 }
+	
