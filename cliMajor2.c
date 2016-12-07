@@ -10,7 +10,22 @@
 #include <arpa/inet.h>
 
 void error(const char *msg);
-
+int getCpuUsage(){
+	float usage;
+	int cpu_load;
+	FILE *fp;
+	
+	fp = fopen("/proc/loadavg","r");
+	if(fp == NULL){
+		perror("ERROR");
+	}
+	else{
+		fscanf(fp,"%f",&usage);		// Read usage from file
+		fclose(fp);
+		cpu_load = (int)(usage * 100);	// Typecast to int
+		return cpu_load;
+	}	
+}
 int main(int argc, char *argv[]) {
 	int s, s2, portno, n;
 	int disconnect, nready, nread, maxfd;
@@ -18,6 +33,7 @@ int main(int argc, char *argv[]) {
 	fd_set fds;
 	int input;
 	int serv = 0;
+	int cpu_usage;
 	
 	char buff[1000];
 	char *output;
@@ -84,6 +100,10 @@ int main(int argc, char *argv[]) {
 						(struct timeval *) 0);
 		
 		if( FD_ISSET(s, &fds)) {
+				cpu_usage = getCpuUsage();
+				if(cpu_usage > atoi(argv[i]){
+					// Disconnect 
+				}   
 				nread = recv(s, buff, sizeof(buff), 0);
 				/* If error or eof, terminate. */
 				if(nread < 1) {
@@ -101,6 +121,10 @@ int main(int argc, char *argv[]) {
 		}
 
 		if( FD_ISSET(0, &fds)) {
+			cpu_usage = getCpuUsage();
+			if(cpu_usage > atoi(argv[i]){
+				// Disconnect 
+			}  
 			nread = read(0, buff, sizeof(buff));
 			/* If error or eof, terminate. */
 			//if(nread < 1) {
