@@ -9,18 +9,25 @@
 #include <arpa/inet.h>
 
 void error(const char *msg);
+void *connection_handler(void *);
+int clientCount = 0;
+int sockfd, cli_size, portno, status;
+int client_sock, c, c1, c2, maxfd, nread, trans;
+int t1 = 0;
+int t2 = 0;
+int total = 0;
+int done = 0;
+int i, j;
+fd_set fds;
+socklen_t clilen;
+char buff[1000];
+
 
 int main(int argc, char *argv[]) {
-	int sockfd, cli_size, portno, status;
-	int client_sock, c, c1, c2, maxfd, nread, trans;
-	int t1 = 0;
-	int t2 = 0;
-	int total = 0;
-	int done = 0;
-	int i, j;
-	fd_set fds;
-	socklen_t clilen;
-	char buff[1000];
+
+		// keep track of clients
+
+	int *new_sock;
 	
 	struct sockaddr_in serv_addr, cli_addr;
 	
@@ -56,39 +63,48 @@ int main(int argc, char *argv[]) {
 		if (client_sock < 0) {
 			error("Error: Unable to accept client");
 		}
-		else {
-			printf("Client Connection Accepted\n");
-			printf("Client Handler Assigned\n");
-			done++;
-		}
-		
-		if ((c2 = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen)) < 0) {
-			error("Error: client 2 accept");
-		}
-		else {
-			printf("Client Connection Accepted\n");
-			printf("Client Handler Assigned\n");
-			done++;
-		}
-		
-		maxfd = (c1 > c2 ? c1 : c2) + 1;
-		
-		while (1) {
+		clientCount = clientCount + 1;
+        
+		printf("CLIENT[%d%s",clientCount,"] Connection Established\n");
+        pthread_t sniffer_thread;
+        new_sock = malloc(1);
+        *new_sock = client_sock;
+         
+        if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) new_sock) < 0)
+        {
+            perror("could not create thread");
+            return 1;
+        }
+
+	}
+			
+	close(sockfd);
+	return 0;
+}
+//error handling function
+void error(const char *msg) {
+	perror(msg);
+}
+
+			void *connection_handler(void *socket_desc){
+
+			int uc = clientCount; // unique client
 			//clilen = sizeof(cli_addr);
 			FD_ZERO(&fds);
-			FD_SET(c1, &fds);
-			FD_SET(c2, &fds);
+			FD_SET(uc, &fds);
+			if (uc > maxfd){
+				maxfd = uc;
+			}
+			//FD_SET(c2, &fds);
 			strcpy(buff, "Server connect successful");
 			
 			status = select(maxfd, &fds, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
 			
 		
-			if (FD_ISSET(c1, &fds)) {
-				nread = recv(c1, buff, sizeof(buff), 0);
+			if (FD_ISSET(uc, &fds)) {
+				nread = recv(uc, buff, sizeof(buff), 0);
 				if (nread < 1) {
-					close(c1);
-					//close(c2);
-					//exit(0);
+					close(uc);
 				}
 				else {
 					trans = atoi(buff);
@@ -104,38 +120,4 @@ int main(int argc, char *argv[]) {
 					}
 				}
 			}
-			if (FD_ISSET(c2, &fds)) {
-				nread = recv(c2, buff, sizeof(buff), 0);
-				if (nread < 1) {
-					//close(c1);
-					close(c2);
-					//exit(0);
-				}
-				else {
-					trans = atoi(buff);
-					if (trans == 0) {
-						printf("Client Disconnected\n");
-						trans = 1;
-						done--;
-					}
-					else {
-						total += trans;
-						printf("%d\n", total);
-					}
-				}
-			}
-			if (done < 2) {
-				break;
-			}
 		}
-		
-	}
-	close(sockfd);
-	return 0;
-}
-//error handling function
-void error(const char *msg) {
-	perror(msg);
-	exit(1);
-}
-	
