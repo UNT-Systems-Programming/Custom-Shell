@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
 	int t1 = 0;
 	int t2 = 0;
 	int total = 0;
+	int done = 0;
 	int i, j;
 	fd_set fds;
 	socklen_t clilen;
@@ -49,70 +50,82 @@ int main(int argc, char *argv[]) {
 	if (listen(sockfd, 10) < 0) {
 		error("Error on listen");
 	}
-	
-	if ((c1 = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen)) < 0) {
-		error("Error: client 1 accept");
-	}
-	else {
-		printf("Client Connection Accepted\n");
-		printf("Client Handler Assigned\n");
-	}
-	
-	if ((c2 = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen)) < 0) {
-		error("Error: client 2 accept");
-	}
-	else {
-		printf("Client Connection Accepted\n");
-		printf("Client Handler Assigned\n");
-	}
-	
-	maxfd = (c1 > c2 ? c1 : c2) + 1;
-	
 	while (1) {
-		//clilen = sizeof(cli_addr);
-		FD_ZERO(&fds);
-		FD_SET(c1, &fds);
-		FD_SET(c2, &fds);
-		strcpy(buff, "Server connect successful");
-		
-		status = select(maxfd, &fds, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
-		
-		
-		if (FD_ISSET(c1, &fds) && t1 < 20) {
-			nread = recv(c1, buff, sizeof(buff), 0);
-			//if (nread < 1) {
-				//close(c1);
-				//close(c2);
-				//exit(0);
-			//}
-			
-			trans = atoi(buff);
-			if (trans == 0) {
-				printf("Client Disconnected\n");
-				trans = 1;
-			}
-			else {
-				total += trans;
-				printf("%d\n", total);
-				
-			}
+		if ((c1 = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen)) < 0) {
+			error("Error: client 1 accept");
 		}
-		if (FD_ISSET(c2, &fds) && t2 < 20) {
-			nread = recv(c2, buff, sizeof(buff), 0);
-			//if (nread < 1) {
-				//close(c1);
-				//close(c2);
-				//exit(0);
-			//}
+		else {
+			printf("%d", c1);
+			printf("Client Connection Accepted\n");
+			printf("Client Handler Assigned\n");
+			done++;
+		}
+		
+		if ((c2 = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen)) < 0) {
+			error("Error: client 2 accept");
+		}
+		else {
+			printf("%d", c2);
+			printf("Client Connection Accepted\n");
+			printf("Client Handler Assigned\n");
+			done++;
+		}
+		
+		maxfd = (c1 > c2 ? c1 : c2) + 1;
+		
+		while (1) {
+			//clilen = sizeof(cli_addr);
+			FD_ZERO(&fds);
+			FD_SET(c1, &fds);
+			FD_SET(c2, &fds);
+			strcpy(buff, "Server connect successful");
 			
-			trans = atoi(buff);
-			if (trans == 0) {
-				printf("Client Disconnected\n");
-				trans = 1;
+			status = select(maxfd, &fds, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
+			
+		
+			if (FD_ISSET(c1, &fds)) {
+				nread = recv(c1, buff, sizeof(buff), 0);
+				if (nread < 1) {
+					close(c1);
+					//close(c2);
+					//exit(0);
+				}
+				else {
+					trans = atoi(buff);
+					if (trans == 0) {
+						printf("Client Disconnected\n");
+						trans = 1;
+						done--;
+					}
+					else {
+						total += trans;
+						printf("%d\n", total);
+						
+					}
+				}
 			}
-			else {
-				total += trans;
-				printf("%d\n", total);
+			if (FD_ISSET(c2, &fds)) {
+				nread = recv(c2, buff, sizeof(buff), 0);
+				if (nread < 1) {
+					//close(c1);
+					close(c2);
+					//exit(0);
+				}
+				else {
+					trans = atoi(buff);
+					if (trans == 0) {
+						printf("Client Disconnected\n");
+						trans = 1;
+						done--;
+					}
+					else {
+						total += trans;
+						printf("%d\n", total);
+					}
+				}
+			}
+			if (done < 2) {
+				break;
 			}
 		}
 		
