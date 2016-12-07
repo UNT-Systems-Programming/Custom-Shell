@@ -1,4 +1,3 @@
-#include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -26,10 +25,11 @@ int getCpuUsage(){
 		return cpu_load;
 	}	
 }
+
 int main(int argc, char *argv[]) {
 	int s, s2, portno, n;
 	int disconnect, nready, nread, maxfd;
-	struct sockaddr_in serv_addr;
+	struct sockaddr_in serv_addr, cli_addr;
 	fd_set fds;
 	int input;
 	int serv = 0;
@@ -63,30 +63,6 @@ int main(int argc, char *argv[]) {
 		}
 	}
  	
-	if ((s2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-	{
-		printf("socket error\n");
-		exit(EXIT_FAILURE);
-	}
-	
-	portno = atoi(argv[3]);
-	if (serv == 1) {
-		serv_addr.sin_family = AF_INET;
-		serv_addr.sin_addr.s_addr = htonl(INADDR_ANY); 
-		serv_addr.sin_port = htons(portno);
-		
-		if (bind(s2, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) == -1) {
-			error("Error on bind");
-		}
-		else {
-			printf("Connection accepted\n");
-		}
-	}
-	else {
-		serv_addr.sin_family = AF_INET;
-		serv_addr.sin_port = htons(portno);
-		serv_addr.sin_addr.s_addr = inet_addr(argv[1]);
-	}
 	maxfd = s + 1;
 	while (1) {
 		
@@ -94,37 +70,38 @@ int main(int argc, char *argv[]) {
 		FD_ZERO(&fds);
 		FD_SET(s,&fds);
 		FD_SET(0,&fds);
-
+		cpu_usage = getCpuUsage();
+		if (cpu_usage >= atoi(argv[5])) {
+			nread = sprintf(buff, "-1");
+			send(s, buff, nread, 0);
+			break;
+			
+		}
+		
 		/* Wait for some input. */
 		nready = select(maxfd, &fds, (fd_set *) 0, (fd_set *) 0,
 						(struct timeval *) 0);
 		
 		if( FD_ISSET(s, &fds)) {
-				cpu_usage = getCpuUsage();
-				if(cpu_usage > atoi(argv[5])){	// Last argument
-					// Disconnect 
-				}   
 				nread = recv(s, buff, sizeof(buff), 0);
 				/* If error or eof, terminate. */
 				if(nread < 1) {
 						close(s);
 						exit(0);
 				}
-				//disconnect = atoi(buff);
-				/*if (disconnect == -1) {
+				disconnect = atoi(buff);
+				if (disconnect == -1) {
 					n = 3;
 					printf("CLIENT Disconnected\n");
+					nread = sprintf(buff, "%d", n);
+					send(s, buff, nread, 0);
 				}
 				else {
-					printf("SERVER Total:  %s\n", buff);
-				}*/
+					printf("SERVER Total:  %d\n", disconnect);
+				}
 		}
 
 		if( FD_ISSET(0, &fds)) {
-			cpu_usage = getCpuUsage();
-			if(cpu_usage > atoi(argv[5])){	// Last argument
-				// Disconnect 
-			}  
 			nread = read(0, buff, sizeof(buff));
 			/* If error or eof, terminate. */
 			//if(nread < 1) {
@@ -139,7 +116,7 @@ int main(int argc, char *argv[]) {
 		}
 				
 	}
-	close(s2);
+	close(s);
 	return 0;
 }
 
